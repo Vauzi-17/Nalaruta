@@ -21,7 +21,7 @@ export default function HomePage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <span className="text-xl font-bold text-slate-900 tracking-tight">
-            Skill<span className="text-[#2563EB]">Route</span>
+            Nala<span className="text-[#2563EB]">ruta</span>
           </span>
           <ul className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
             <li>
