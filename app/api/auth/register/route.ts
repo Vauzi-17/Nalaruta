@@ -1,88 +1,112 @@
-import { NextRequest, NextResponse } from "next/server";
-import { MongoClient } from "mongodb";
-import bcrypt from "bcryptjs";
+import { NextResponse } from "next/server"
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
-const DB_NAME = process.env.MONGODB_DB || "nalaruta";
+import { z } from "zod"
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+import bcrypt from "bcryptjs"
 
-if (!global._mongoClientPromise) {
-  client = new MongoClient(MONGODB_URI);
-  global._mongoClientPromise = client.connect();
-}
-clientPromise = global._mongoClientPromise;
+import { headers } from "next/headers"
 
-export async function POST(req: NextRequest) {
+import { auth } from "@/lib/auth"
+
+import connectDB from "@/lib/mongodb"
+
+import User from "@/models/User"
+
+const RegisterSchema = z.object({
+  name: z.string().min(2),
+
+  email: z.email(),
+
+  password: z
+    .string()
+    .min(8)
+    .regex(
+      /^(?=.*[A-Za-z])(?=.*\d).+$/,
+      "Password harus mengandung huruf dan angka"
+    ),
+})
+
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { name, email, password } = body;
+    const body = await request.json()
 
-    // Validasi input
-    if (!name || !email || !password) {
+    const validated = RegisterSchema.parse(body)
+
+    await connectDB()
+
+    const existingUser = await User.findOne({
+      email: validated.email,
+    })
+
+    if (existingUser) {
       return NextResponse.json(
-        { message: "Nama, email, dan password wajib diisi." },
-        { status: 400 }
-      );
+        {
+          error: "Email sudah terdaftar",
+        },
+        {
+          status: 409,
+        }
+      )
     }
 
-    if (typeof name !== "string" || name.trim().length < 2) {
-      return NextResponse.json(
-        { message: "Nama minimal 2 karakter." },
-        { status: 400 }
-      );
-    }
+    const hashedPassword = await bcrypt.hash(
+      validated.password,
+      12
+    )
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json(
-        { message: "Format email tidak valid." },
-        { status: 400 }
-      );
-    }
+    const user = await User.create({
+      name: validated.name,
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { message: "Password minimal 8 karakter." },
-        { status: 400 }
-      );
-    }
+      email: validated.email,
 
-    const mongoClient = await clientPromise;
-    const db = mongoClient.db(DB_NAME);
-    const users = db.collection("users");
-
-    // Cek email sudah terdaftar
-    const existing = await users.findOne({ email: email.toLowerCase().trim() });
-    if (existing) {
-      return NextResponse.json(
-        { message: "Email sudah terdaftar. Gunakan email lain." },
-        { status: 409 }
-      );
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    const result = await users.insertOne({
-      name: name.trim(),
-      email: email.toLowerCase().trim(),
       password: hashedPassword,
-      createdAt: new Date(),
-    });
+
+      provider: "credentials",
+    })
+
+    await auth.api.signUpEmail({
+      body: {
+        name: validated.name,
+        email: validated.email,
+        password: validated.password,
+      },
+
+      headers: await headers(),
+    })
 
     return NextResponse.json(
       {
-        message: "Akun berhasil dibuat.",
-        userId: result.insertedId.toString(),
+        message: "Berhasil",
+
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
       },
-      { status: 201 }
-    );
-  } catch (err) {
-    console.error("[REGISTER ERROR]", err);
+      {
+        status: 201,
+      }
+    )
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        {
+          error: error.flatten(),
+        },
+        {
+          status: 400,
+        }
+      )
+    }
+
     return NextResponse.json(
-      { message: "Terjadi kesalahan server." },
-      { status: 500 }
-    );
+      {
+        error: "Terjadi kesalahan server",
+      },
+      {
+        status: 500,
+      }
+    )
   }
 }
