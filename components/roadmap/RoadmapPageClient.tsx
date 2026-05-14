@@ -1,15 +1,13 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import {
-  BookOpen,
   ChevronLeft,
-  Circle,
-  Loader2,
+  X,
 } from "lucide-react"
 
 import NodeDetail from "@/components/roadmap/NodeDetail"
@@ -125,11 +123,10 @@ export default function RoadmapPageClient({
     )
   }, [roadmap.nodes, selectedNodeId])
 
-  useEffect(() => {
-    if (selectedNodeId) {
-      setShowMobileDetail(true)
-    }
-  }, [selectedNodeId])
+  function handleSelectNode(id: string) {
+    setSelectedNodeId(id)
+    setShowMobileDetail(true)
+  }
 
   async function handleUpdateStatus(
     nodeId: string,
@@ -193,6 +190,16 @@ export default function RoadmapPageClient({
           await res.json()
 
         setProgress(updated)
+
+        if (
+          status === "completed" &&
+          updated.currentNode
+        ) {
+          setSelectedNodeId(
+            updated.currentNode
+          )
+          setShowMobileDetail(true)
+        }
       }
     } catch (error) {
       console.error(error)
@@ -460,7 +467,7 @@ export default function RoadmapPageClient({
               selectedNodeId
             }
             onNodeClick={(id) =>
-              setSelectedNodeId(id)
+              handleSelectNode(id)
             }
           />
         </div>
@@ -469,11 +476,12 @@ export default function RoadmapPageClient({
         <div
           className={`
             fixed bottom-0 left-0 right-0 z-50
-            max-h-[80vh]
-            overflow-y-auto
+            flex max-h-[calc(100dvh-8rem)]
+            flex-col overflow-hidden
             rounded-t-2xl
             border-t border-[var(--border)]
             bg-[var(--card)]
+            shadow-[var(--shadow-lg)]
             transition-transform duration-300
             ${
               showMobileDetail
@@ -483,7 +491,15 @@ export default function RoadmapPageClient({
           `}
         >
           {/* HANDLE */}
-          <div className="flex justify-center py-3">
+          <div
+            className="
+              flex shrink-0
+              items-center
+              justify-between px-5 py-3
+            "
+          >
+            <div className="w-9" />
+
             <div
               className="
                 h-1.5 w-14
@@ -491,9 +507,33 @@ export default function RoadmapPageClient({
                 bg-[var(--border)]
               "
             />
+
+            <button
+              type="button"
+              onClick={() =>
+                setShowMobileDetail(false)
+              }
+              className="
+                flex h-9 w-9
+                items-center justify-center
+                rounded-lg
+                text-[var(--text-muted)]
+                hover:bg-[var(--muted)]
+                hover:text-[var(--text-primary)]
+              "
+              aria-label="Tutup detail materi"
+            >
+              <X size={18} />
+            </button>
           </div>
 
-          <div className="px-5 pb-8">
+          <div
+            className="
+              flex-1 overflow-y-auto
+              px-5
+              pb-[calc(2rem+env(safe-area-inset-bottom))]
+            "
+          >
             <NodeDetail
               node={selectedNode}
               completedNodes={

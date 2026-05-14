@@ -9,11 +9,18 @@ import {
 } from "lucide-react"
 
 type Props = {
-  nodes: any[]
+  nodes: RoadmapTreeNode[]
   completedNodes: string[]
-  currentNode: string
+  currentNode: string | null | undefined
   onNodeClick: (id: string) => void
   selectedNodeId: string | null
+}
+
+type RoadmapTreeNode = {
+  id: string
+  title: string
+  difficulty: string
+  estimatedDays: number
 }
 
 export default function RoadmapTree({
@@ -71,10 +78,11 @@ export default function RoadmapTree({
               }
               disabled={isLocked}
               className={`
-                flex w-full max-w-sm min-w-[260px]
+                flex w-full max-w-sm
                 items-center gap-3
-                rounded-xl px-5 py-3.5
+                rounded-xl px-4 py-3.5
                 transition-all duration-200
+                sm:px-5
 
                 ${
                   isCompleted
@@ -139,10 +147,10 @@ export default function RoadmapTree({
                 />
               )}
 
-              <div className="ml-1 flex-1">
+              <div className="ml-1 min-w-0 flex-1">
                 <p
                   className="
-                    text-left text-sm
+                    truncate text-left text-sm
                     font-medium
                   "
                 >
@@ -151,7 +159,8 @@ export default function RoadmapTree({
 
                 <p
                   className="
-                    mt-0.5 text-left text-xs
+                    mt-0.5 truncate
+                    text-left text-xs
                     text-[var(--text-muted)]
                   "
                 >
@@ -167,6 +176,7 @@ export default function RoadmapTree({
                 !isCompleted && (
                   <span
                     className="
+                      shrink-0
                       rounded-full
                       bg-[#2563EB]
                       px-2 py-0.5
