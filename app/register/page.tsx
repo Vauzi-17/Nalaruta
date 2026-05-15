@@ -80,28 +80,38 @@ export default function RegisterPage() {
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (!validateForm()) return
-    setIsLoading(true)
-    setErrors({})
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+  e.preventDefault()
+
+  if (!validateForm()) return
+
+  setIsLoading(true)
+  setErrors({})
+
+  try {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      setErrors({
+        general: data.message || data.error || "Gagal membuat akun",
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setErrors({ general: data.message || "Gagal membuat akun" })
-        return
-      }
-      await signIn.email({ email, password, callbackURL: "/onboarding" })
-    } catch {
-      setErrors({ general: "Terjadi kesalahan saat register" })
-    } finally {
-      setIsLoading(false)
+      return
     }
+
+    router.push("/login")
+  } catch (error) {
+    setErrors({
+      general: "Akun berhasil dibuat, tapi terjadi masalah. Silakan login manual.",
+    })
+  } finally {
+    setIsLoading(false)
   }
+}
 
   async function handleGoogleRegister() {
     try {
