@@ -85,8 +85,8 @@ export default async function ProgressPage() {
   await connectDB()
 
   const user = await User.findOne({
-    email: session.user.email,
-  }).lean()
+  email: session.user.email,
+}).lean<{ _id: any; longestStreak?: number }>()
 
   if (!user) {
     redirect("/login")
