@@ -47,20 +47,20 @@ const highlights = [
 
 const team = [
   {
-    initials: "FD",
-    name: "Raka Pratama",
+    initials: "GSR",
+    name: "Gilang Surya Ramadhan",
     role: "Frontend Developer",
   },
 
   {
-    initials: "BD",
-    name: "Dimas Saputra",
+    initials: "VTU",
+    name: "Vauzi Tri Utomo",
     role: "Backend Developer",
   },
 
   {
-    initials: "CR",
-    name: "Nabila Aulia",
+    initials: "SB",
+    name: "Suvarna Bhumi",
     role: "Content & Research",
   },
 ]

@@ -80,7 +80,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#2563EB] shadow-sm">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#2d416d00]">
               <Image
                 src="/nalaruta.png"
                 alt="Nalaruta"
@@ -237,7 +237,7 @@ export default function Navbar() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
               <Link href="/" onClick={() => setIsMobileOpen(false)} className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-7 h-7 rounded-md bg-[#2563EB]">
+                <div className="flex items-center justify-center w-7 h-7 rounded-md bg-[#2564eb00]">
                   <Image src="/nalaruta.png" alt="Nalaruta" width={16} height={16} className="object-contain" />
                 </div>
                 <span className="text-base font-bold text-[var(--text-primary)]">

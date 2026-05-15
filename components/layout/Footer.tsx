@@ -168,7 +168,7 @@ export default function Footer() {
               text-[var(--text-muted)]
             "
           >
-            © 2025 Nalaruta. Dibuat untuk
+            © 2026 Nalaruta. Dibuat untuk
             pelajar Indonesia.
           </p>
         </div>
