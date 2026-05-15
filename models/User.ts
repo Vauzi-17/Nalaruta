@@ -134,13 +134,5 @@ const UserSchema = new Schema<IUser>(
   }
 )
 
-UserSchema.index(
-  { email: 1 },
-  {
-    unique: true,
-    sparse: true,
-  }
-)
-
 export default mongoose.models.User ||
   mongoose.model<IUser>("User", UserSchema)
